@@ -1,8 +1,11 @@
 #include "queue.h"
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-int cols = 10;
+
+int cols;
+
 
 struct list_vect{
     int x;
@@ -52,7 +55,6 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
         add_list_vect(chemin, u->x, u->y);
         return 1;
     }
- 
     if(((u->x) -1 ) > -1){
         if(((u->y) -1) > -1){
             int u_y = u->y -1;
@@ -155,7 +157,9 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
 
 
 
-int A_star(int x_begin, int y_begin, int x_end, int y_end, struct list_vect* chemin, int* map){
+int A_star(int x_begin, int y_begin, int x_end, int y_end, 
+        struct list_vect* chemin, int* map, int cols_2){
+    cols = cols_2;
     struct pqueue* closedList = create();
     struct pqueue* openList = create();
     add(openList, x_begin, y_begin, 0, 0);

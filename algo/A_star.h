@@ -9,6 +9,7 @@ struct list_vect{
 };
 
 
-int A_star(int x_begin, int y_begin, int x_end, int y_end, struct list_vect* chemin, int* map);
+int A_star(int x_begin, int y_begin, int x_end, int y_end,
+        struct list_vect* chemin, int* map,int cols_2);
 
 #endif
