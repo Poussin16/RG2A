@@ -144,11 +144,23 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
         }
     }
 
+    /*
+    if(A(openList, closedList, x_end, y_end, chemin, map)){
+        printf("test\n");
+        if(is_not_in_closedList(u->x, u->y, closedList)){
+                add_list_vect(chemin, u->x, u->y);
+                add_pqueue(closedList, u);
+        }
+        return 1;
+    }
+    add_pqueue(closedList, u);
+    */
     add_pqueue(closedList, u);
     if(A(openList, closedList, x_end, y_end, chemin, map)){
         add_list_vect(chemin, u->x, u->y);
         return 1;
     }
+
     return 0;
 }
 

@@ -65,6 +65,18 @@ void suppr_pqueue(struct pqueue* p){
 }
 
 
+int is_not_in_closedList(int x, int y, struct pqueue* closedList){
+    struct pqueue* p = closedList->next;
+    while(p != NULL){
+        if(p->x == x && p->y == y)
+            return 0;
+        p = p->next;
+    }
+    return 1;
+}
+
+
+
 
 int is_in_pqueue(int x, int y, int cout, struct pqueue* closedList, struct pqueue* openList){
     struct pqueue* p = closedList->next;

@@ -27,4 +27,6 @@ struct pqueue* get_first(struct pqueue* p);
 
 int is_in_pqueue(int x, int y, int cout, struct pqueue* closedList, struct pqueue* openList);
 
+int is_not_in_closedList(int x, int y, struct pqueue* closedList);
+
 #endif
