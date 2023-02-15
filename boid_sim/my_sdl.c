@@ -406,7 +406,7 @@ void main_loop(SDL_Renderer *renderer)//,SDL_Texture *map)
 			case SDL_QUIT:
 				return;
 			case SDL_KEYDOWN:
-				error = SDL_SetRenderDrawColor(renderer,
+                                error = SDL_SetRenderDrawColor(renderer,
 						0x00, 0x00, 0x00, 0xFF);
 				if(error < 0)
 					SDL_ExitWithError("SDL_SetRenderDrawColor");
