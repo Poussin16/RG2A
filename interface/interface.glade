@@ -413,6 +413,7 @@
                     <child>
                       <object class="GtkScale" id="scale_c2">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="round-digits">0</property>
                         <property name="digits">0</property>
@@ -451,6 +452,7 @@
                     <child>
                       <object class="GtkScale" id="scale_s2">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="round-digits">0</property>
                         <property name="digits">0</property>
@@ -489,6 +491,7 @@
                     <child>
                       <object class="GtkScale" id="scale_a2">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="round-digits">0</property>
                         <property name="digits">0</property>
@@ -528,6 +531,7 @@
                       <object class="GtkCheckButton" id="algo1_team2">
                         <property name="label" translatable="yes">Algo 1</property>
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
                         <property name="draw-indicator">True</property>
@@ -566,6 +570,7 @@
                       <object class="GtkCheckButton" id="algo2_team2">
                         <property name="label" translatable="yes">Algo 2</property>
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
                         <property name="draw-indicator">True</property>
@@ -616,7 +621,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="delete_team2">
-                        <property name="label" translatable="yes">Delete</property>
+                        <property name="label" translatable="yes">Add</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>

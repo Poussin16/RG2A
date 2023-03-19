@@ -1,25 +1,24 @@
 # Makefile
 
 CC = gcc
-CPPFLAGS =
+CPPFLAGS = -MMD -g
 CFLAGS = -Wall -Wextra -O3 `pkg-config --cflags sdl2`
 LDFLAGS =
-LDLIBS = -lm `pkg-config --libs sdl2` -lm
+LDLIBS = -lm `pkg-config --libs sdl2`
 
-all: paint
-
-SRC = paint.c
+SRC = main.c paint.c
 OBJ = ${SRC:.c=.o}
 EXE = ${SRC:.c=}
 
-plain: plain.o
-static: static.o
-dynamic: dynamic.o
+all: main
+
+main: ${OBJ}
 
 .PHONY: clean
 
 clean:
 	${RM} ${OBJ}
 	${RM} ${EXE}
+	find . -mindepth 1 -iname "*.d" -type f -delete
 
 # END

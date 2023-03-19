@@ -1,19 +1,15 @@
 #ifndef MY_SDL_H
 #define MY_SDL_H
 
-#include<err.h>
 #include<stdlib.h>
 #include<stdio.h>
 #include<math.h>
 #include<SDL2/SDL.h>
 #include"mycomplex.h"
-
 #include <time.h>
-#include <pthread.h>
 
 #define Draw_Polygon SDL_RenderDrawLines
 #define MOD(x,y) sqrt(x*x + y*y)
-
 /*
 typedef struct polygon
 {
@@ -36,8 +32,7 @@ typedef struct Boid
 
 int randint(int min, int max);
 
-void set_run(const char run);
-void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height);
+void main_loop(SDL_Renderer *renderer);//SDL_Texture *map);
 
 void set_triangle(Boid *boid);
 SDL_Point rotate_point(SDL_Point point, SDL_Point center, double deg_angle);
@@ -69,13 +64,5 @@ size_t dist(SDL_Point p1, SDL_Point p2);
 int detect_point(Boid *boid, SDL_Point point);
 void set_dists(Boid *boid, Boid *boids, size_t *dists, size_t n);
 
-/////////
-void set_coef_align(size_t coef);
-void set_coef_sep(size_t coef);
-void set_coef_coh(size_t coef);
-
-/////////
-void set_active_obstacle(size_t set);
-void set_active_pathfinding(size_t set);
-
 #endif
+

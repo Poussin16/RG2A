@@ -1,10 +1,18 @@
+#include <err.h>
+#include <pthread.h>
 #include <gtk/gtk.h>
+#include "../boid_sim/main.h"
+#include "../boid_sim/my_sdl.h"
+
+// -----------THREAD---------------
+pthread_t thr;
+char status = 0;
 
 // ------------ALGO1----------------
-int set_algo1[] = {2, 7, 5};
+int set_algo1[] = {20, 70, 50};
 
-// ------------ALGO1----------------
-int set_algo2[] = {4, 5, 10};
+// ------------ALGO2----------------
+int set_algo2[] = {40, 50, 100};
 
 // ------------TEAM1----------------
 GtkScale* scale_c1; //cohesion team1
@@ -27,28 +35,58 @@ GtkButton* delete_t2;
 
 void set_start(GtkButton* start)
 {
-    const char* label = gtk_button_get_label(start);
-
-    // set to Pause
-    if (label[0] == 'S')
+    // NOT RUN
+    // set label PAUSE
+    // set run to START
+    if (status == 0)
     {
+        status = 1;
+        set_run(status);
         gtk_button_set_label(start, "Pause");
+        int e = pthread_create(&thr, NULL, run, NULL);
+        if (e != 0)
+            err(EXIT_FAILURE, "pthread create()");
     }
-    // set to Start
-    else
+    // RUN
+    // set the label to Resume
+    // set run to PAUSE
+    else if (status == 1)
     {
-        gtk_button_set_label(start, "Start");
+        status = 2;
+        set_run(status);
+        gtk_button_set_label(start, "Resume");
+    }
+    // PAUSE
+    // set the label to Pause
+    // set run to START
+    else if (status == 2)
+    {
+        status = 1;
+        set_run(status);
+        gtk_button_set_label(start, "Pause");
     }
 }
 
 void set_stop(GtkButton* stop, GtkButton* start)
 {
-    gtk_button_set_label(start, "Start");
+    if (status)
+    {
+        gtk_button_get_label(stop);
+        gtk_button_set_label(start, "Start");
+        status = 0;
+        set_run(status);
+        pthread_join(thr, NULL);
+    }
 }
 
 void set_obstacle(GtkCheckButton* obstacle)
 {
     gboolean b = !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(obstacle));
+
+    if (!b)
+        set_active_obstacle(1);
+    else
+        set_active_obstacle(0);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(path_t1), FALSE);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(path_t2), FALSE);
@@ -70,9 +108,30 @@ void set_vector(GtkCheckButton* vector)
     g_print("vector set: %i\n", b);
 }
 
-void get_value_scale(GtkScale* scale, char* s)
+// When a scale was modified
+void get_value_scale(GtkScale* scale, int* c)
 {
-    g_print("%s: %f\n", s, gtk_range_get_value(GTK_RANGE(scale)));
+    double coef_s = gtk_range_get_value(GTK_RANGE(scale));
+    size_t coef = ((size_t)coef_s * 18) / 10;
+
+    if (*c == 1)
+    {
+        if (scale == scale_c1)
+            set_coef_coh(coef);
+        else if (scale == scale_s1)
+            set_coef_sep(coef);
+        else if (scale == scale_a1)
+            set_coef_align(coef);
+    }
+    else if (*c != 2)
+    {
+        if (scale == scale_c2)
+            set_coef_coh(coef);
+        else if (scale ==scale_s2)
+            set_coef_sep(coef);
+        else if (scale == scale_a2)
+            set_coef_align(coef);
+    }
 }
 
 void set_algo(GtkCheckButton* algo, GtkCheckButton* obstacle)
@@ -157,11 +216,9 @@ void delete_team(GtkButton* delete)
         gtk_widget_set_sensitive(GTK_WIDGET(scale_a1), b);
         gtk_widget_set_sensitive(GTK_WIDGET(algo1_t1), b);
         gtk_widget_set_sensitive(GTK_WIDGET(algo2_t1), b);
-        gtk_widget_set_sensitive(GTK_WIDGET(path_t1), b);
 
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(algo1_t1), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(algo2_t1), FALSE);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(path_t1), FALSE);
     }
     else
     {
@@ -170,11 +227,9 @@ void delete_team(GtkButton* delete)
         gtk_widget_set_sensitive(GTK_WIDGET(scale_a2), b);
         gtk_widget_set_sensitive(GTK_WIDGET(algo1_t2), b);
         gtk_widget_set_sensitive(GTK_WIDGET(algo2_t2), b);
-        gtk_widget_set_sensitive(GTK_WIDGET(path_t2), b);
 
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(algo1_t2), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(algo2_t2), FALSE);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(path_t2), FALSE);
     }
 }
 
@@ -202,6 +257,7 @@ int main ()
     GtkCheckButton* vector = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "vector"));
 
     // ------------TEAM1----------------
+    int team1 = 1;
     scale_c1 = GTK_SCALE(gtk_builder_get_object(builder, "scale_c1"));
     scale_s1 = GTK_SCALE(gtk_builder_get_object(builder, "scale_s1"));
     scale_a1 = GTK_SCALE(gtk_builder_get_object(builder, "scale_a1"));
@@ -211,6 +267,7 @@ int main ()
     delete_t1 = GTK_BUTTON(gtk_builder_get_object(builder, "delete_team1"));
 
     // ------------TEAM2----------------
+    int team2 = 2;
     scale_c2 = GTK_SCALE(gtk_builder_get_object(builder, "scale_c2"));
     scale_s2 = GTK_SCALE(gtk_builder_get_object(builder, "scale_s2"));
     scale_a2 = GTK_SCALE(gtk_builder_get_object(builder, "scale_a2"));
@@ -220,8 +277,8 @@ int main ()
     delete_t2 = GTK_BUTTON(gtk_builder_get_object(builder, "delete_team2"));
 
     gdouble min = 0;
-    gdouble mid = 5;
-    gdouble max = 10;
+    gdouble mid = 50;
+    gdouble max = 100;
     gtk_range_set_range(GTK_RANGE(scale_c1), min, max);
     gtk_range_set_value(GTK_RANGE(scale_c1), mid);
     gtk_range_set_range(GTK_RANGE(scale_s1), min, max);
@@ -247,17 +304,17 @@ int main ()
     g_signal_connect(delete_t1, "clicked", G_CALLBACK(delete_team), NULL);
     g_signal_connect(algo1_t1, "clicked", G_CALLBACK(set_algo), obstacle);
     g_signal_connect(algo2_t1, "clicked", G_CALLBACK(set_algo), obstacle);
-    g_signal_connect(scale_c1, "value_changed", G_CALLBACK(get_value_scale), "cohesion 1");
-    g_signal_connect(scale_s1, "value_changed", G_CALLBACK(get_value_scale), "separation 1");
-    g_signal_connect(scale_a1, "value_changed", G_CALLBACK(get_value_scale), "alignment 1");
+    g_signal_connect(scale_c1, "value_changed", G_CALLBACK(get_value_scale), &team1);
+    g_signal_connect(scale_s1, "value_changed", G_CALLBACK(get_value_scale), &team1);
+    g_signal_connect(scale_a1, "value_changed", G_CALLBACK(get_value_scale), &team1);
 
     // ------------TEAM2----------------
     g_signal_connect(delete_t2, "clicked", G_CALLBACK(delete_team), NULL);
     g_signal_connect(algo1_t2, "clicked", G_CALLBACK(set_algo), obstacle);
     g_signal_connect(algo2_t2, "clicked", G_CALLBACK(set_algo), obstacle);
-    g_signal_connect(scale_c2, "value_changed", G_CALLBACK(get_value_scale), "cohesion 2");
-    g_signal_connect(scale_s2, "value_changed", G_CALLBACK(get_value_scale), "separation 2");
-    g_signal_connect(scale_a2, "value_changed", G_CALLBACK(get_value_scale), "alignment 2");
+    g_signal_connect(scale_c2, "value_changed", G_CALLBACK(get_value_scale), &team2);
+    g_signal_connect(scale_s2, "value_changed", G_CALLBACK(get_value_scale), &team2);
+    g_signal_connect(scale_a2, "value_changed", G_CALLBACK(get_value_scale), &team2);
 
     gtk_widget_show(GTK_WIDGET(window_main));
     // Runs the main loop.

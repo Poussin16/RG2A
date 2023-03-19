@@ -1,18 +1,26 @@
 # Makefile
 
 CC = gcc
-CFLAGS = `pkg-config --cflags gtk+-3.0` -Wall -O3
-LDLIBS = `pkg-config --libs gtk+-3.0`
+CPPFLAGS = -MMD -g
+CFLAGS = -Wall -Wextra -O3 -O0 -g `pkg-config --cflags sdl2 SDL2_image SDL2_ttf gtk+-3.0`
+LDFLAGS =
+LDLIBS = -lm `pkg-config --libs sdl2 SDL2_image SDL2_ttf gtk+-3.0`
 
-EXE = set_up
+SRC = set_up.c ../boid_sim/main.c ../boid_sim/mycomplex.c ../boid_sim/my_sdl.c ../paint/paint.c ../shared_queue/queue.c ../shared_queue/shared_queue.c
+OBJ = ${SRC:.c=.o}
+OBJ2 = ${SRC:.c=.d}
+EXE = ${SRC:.c=}
 
-all: ${EXE}
+all: set_up
 
-$(foreach f, $(EXE), $(eval $(f):))
+set_up: ${OBJ}
 
 .PHONY: clean
 
 clean:
-	${RM} $(EXE)
+	${RM} ${OBJ}
+	${RM} ${OBJ2}
+	${RM} ${EXE}
+
 
 # END
