@@ -8,6 +8,8 @@ struct pqueue{
     int y;
     int heur;
     int cout;
+    int x_father;
+    int y_father;
 };
 
 int is_pq_empty(struct pqueue* p);
@@ -17,7 +19,7 @@ struct pqueue* create();
 
 struct pqueue* get_first(struct pqueue* p);
 
-void add(struct pqueue* pq, int x, int y, int heur, int cout);
+void add(struct pqueue* pq, int x, int y, int heur, int cout, int x_father, int y_father);
 
 void add_pqueue(struct pqueue* pq, struct pqueue* pq_add);
 

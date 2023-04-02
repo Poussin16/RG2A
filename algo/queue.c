@@ -7,6 +7,8 @@ struct pqueue{
     int y;
     int heur;
     int cout;
+    int x_father;
+    int y_father;
 };
 
 
@@ -23,12 +25,14 @@ struct pqueue* create(){
     return pq;
 }
 
-void add(struct pqueue* pq, int x, int y, int heur, int cout){
+void add(struct pqueue* pq, int x, int y, int heur, int cout, int x_father, int y_father){
     struct pqueue* pq_add = malloc(sizeof(struct pqueue));
     pq_add->x = x;
     pq_add->y = y;
     pq_add->heur = heur;
     pq_add->cout = cout;
+    pq_add->x_father = x_father;
+    pq_add->y_father = y_father;
     while( pq->next != NULL && pq->next->heur < heur)
         pq = pq->next;
     struct pqueue* a = pq->next;
@@ -82,13 +86,20 @@ int is_in_pqueue(int x, int y, int cout, struct pqueue* closedList, struct pqueu
     struct pqueue* p = closedList->next;
     while(p != NULL){
         if(p->x == x && p->y == y)
-            return 1;
+            return 2;
         p = p->next;
     }
     struct pqueue* p2 = openList->next;
     while(p2 != NULL){
-        if(p2->x == x && p2->y == y && p2->cout < cout)
-            return 1;
+        if(p2->x == x && p2->y == y){
+            if(p2->cout > cout){
+                p2->x = x;
+                p2->y = y;
+                return 1;
+            }
+            else
+                return 1;
+        }
         p2 = p2->next;
     }
     return 0;

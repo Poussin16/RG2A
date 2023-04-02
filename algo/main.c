@@ -43,10 +43,10 @@ int map_build1[] = {
     0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0 , 1, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0 , 1, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1 , 1, 0, 0,
-    0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 , 0, 0, 0,
+    0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 , 0, 0, 0,
     0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 , 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0 , 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1 , 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1 , 0, 0, 0,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 , 1, 1, 1,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0, 0, 0,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0, 0, 0,
@@ -96,7 +96,7 @@ void print_map(int* map){
             if(*(map) == 1)
                 printf("--");
             else
-                printf("| ");
+                printf(". ");
         }
         map++;
     }
@@ -104,44 +104,65 @@ void print_map(int* map){
 
 }
 
+
+
+        
 int main(){
 
     struct list_vect* chemin = malloc(sizeof(struct list_vect));
-    chemin->x = 0;
-    chemin->y = 0;
+    chemin->x = -1;
+    chemin->y = -1;
     chemin->next = NULL;
     printf("first map =\n");
     print_map(map_build0);
     printf("\n\n");
+
+
+
     if(A_star(0, 0, 19, 19, chemin, map_build0, 20))
         printf("A* succeed\n");
-    while(chemin != NULL){
-        struct list_vect* c = chemin;
+
+
+
+    struct list_vect* a = chemin;
+    while(chemin->next != NULL){
+        struct list_vect* c = chemin->next;
         int x_vect = c->x;
         int y_vect = c->y;
         map_build0[x_vect * 20 + y_vect] = 4;
         chemin = chemin->next;
-        free(c);
     }
+    free_list_vect(a);
+    printf("lets goo ??\n\n");
     print_map(map_build0);
+
+
+
  
     struct list_vect* chemin2 = malloc(sizeof(struct list_vect));
-    chemin2->x = 0;
-    chemin2->y = 0;
+    chemin2->x = -1;
+    chemin2->y = -1;
     chemin2->next = NULL;
     printf("Second map =\n");
     print_map(map_build1);
     printf("\n\n");
+
+
     if(A_star(0, 0, 19, 19, chemin2, map_build1, 20))
         printf("A* succeed\n");
-    while(chemin2 != NULL){
+
+    struct list_vect* a2 = chemin2;
+    while(chemin2->next != NULL){
         struct list_vect* c = chemin2;
-        int x_vect = c->x;
-        int y_vect = c->y;
+        int x_vect = c->x_father;
+        int y_vect = c->y_father;
         map_build1[x_vect * 20 + y_vect] = 4;
         chemin2 = chemin2->next;
-        free(c);
     }
+    free_list_vect(a2);
+    printf("lets goo 2\n");
+
+
     print_map(map_build1);
        
     return 1;
