@@ -1,6 +1,7 @@
 #include "queue.h"
 #include <math.h>
 #include <stdlib.h>
+#include <err.h>
 #include <stdio.h>
 
 
@@ -37,12 +38,16 @@ int distance(int x1, int y1, int x2, int y2){
 */
 
 
+
+
+
 void add_list_vect(struct list_vect* c, int x, int y, int x_f, int y_f){
     struct list_vect* p = malloc(sizeof(struct list_vect));
     p->x = x;
     p->y = y;
     p->x_father = x_f;
     p->y_father = y_f;
+    p->next = NULL;
     while(c->next != NULL)
         c = c->next;
     c->next = p;
@@ -77,8 +82,10 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
     struct pqueue* u = get_first(openList);
 
 
-
-    printf("test %i    %i\n", u->x, u->y);
+    if(u->x == x_end && u->y == y_end){
+        add_list_vect(chemin, u->x, u->y, u->x_father, u->y_father);
+        return 1;
+    }
 
     //iteration sur voisins de u
     for(int dr = -1; dr <=1; dr++){
@@ -90,11 +97,7 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
             int u_y = u->y + dc;
 
             if(u_x >= 0 && u_x < cols && u_y >= 0 && u_y < cols){
-                if(u_x == x_end && u_y == y_end){
-                    add_list_vect(chemin, u->x, u->y, u->x_father, u->y_father);
-                    printf("We found it\n\n");
-                    return 1;
-                }
+
                 if(map[u_x*cols +u_y] == 0){
                     if(is_in_pqueue(u_x, u_y, u->cout, closedList, openList) == 0){
                         int heur = distance(u_x, u_y, x_end, y_end) + u->cout + 2;
@@ -104,12 +107,12 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
             }
         }
     }
-
+    
 
     add_pqueue(closedList, u);
-    if(A(openList, closedList, x_end, y_end, chemin, map) == 1){
+    int x = A(openList, closedList, x_end, y_end, chemin, map);
+    if(x == 1){
         add_list_vect(chemin, u->x, u->y, u->x_father, u->y_father);
-        printf("found it !!!!\n\n");
         return 1;
     }
 
@@ -132,22 +135,14 @@ struct list_vect* found_in(struct list_vect* path,int  x,int  y){
 
 
 struct list_vect* pathcleaning(struct list_vect* chemin, int x_end, int y_end){
-    int X_father = 0;
-    int Y_father = 0;
-    for(struct list_vect* a = chemin; a!=NULL; a = a->next){
-        if(a->x == x_end && a->y == y_end){
-            printf("test2 x_father = %i y_father = %i\n",a->x_father, a->y_father);
-            X_father = a->x_father;
-            Y_father = a->y_father;
-            break;
-        }
-    }
+    int X_father = chemin->next->x_father;
+    int Y_father = chemin->next->y_father;
+
 
     struct list_vect* final_path = malloc(sizeof(struct list_vect));
     add_list_vect(final_path, x_end, y_end, X_father, Y_father);
 
     while(X_father != -1 && Y_father != -1){
-        printf("test2 x_father = %i y_father = %i\n",X_father, Y_father);
         struct list_vect* f = found_in(chemin, X_father, Y_father);
         add_list_vect(final_path, f->x, f->y, f->x_father, f->y_father);
         X_father = f->x_father;
@@ -173,7 +168,7 @@ void free_list_vect(struct list_vect* chemin){
 
 
 
-int A_star(int x_begin, int y_begin, int x_end, int y_end, 
+struct list_vect* A_star(int x_begin, int y_begin, int x_end, int y_end, 
         struct list_vect* chemin, int* map, int cols_2){
     cols = cols_2;
     struct pqueue* closedList = create();
@@ -181,14 +176,13 @@ int A_star(int x_begin, int y_begin, int x_end, int y_end,
 
     add(openList, x_begin, y_begin, 0, 0, -1, -1);
     int rslt = A(openList, closedList, x_end, y_end, chemin, map);
-
-    printf("oh mon frere\n");
+    if(rslt != 1){
+        errx(1,"error while founding the objective");
+    }
 
     struct list_vect* final_path = pathcleaning(chemin, x_end, y_end);
-    struct list_vect* TEST = chemin->next;
-    chemin = final_path;
 
     suppr_pqueue(closedList);
     suppr_pqueue(openList);
-    return rslt;
+    return final_path;
 }

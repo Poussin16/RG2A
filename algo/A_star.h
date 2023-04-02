@@ -13,7 +13,7 @@ struct list_vect{
 
 void free_list_vect(struct list_vect* chemin);
 
-int A_star(int x_begin, int y_begin, int x_end, int y_end,
+struct list_vect* A_star(int x_begin, int y_begin, int x_end, int y_end,
         struct list_vect* chemin, int* map,int cols_2);
 
 #endif

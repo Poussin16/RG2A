@@ -119,18 +119,17 @@ int main(){
 
 
 
-    if(A_star(0, 0, 19, 19, chemin, map_build0, 20))
-        printf("A* succeed\n");
+    struct list_vect* path = A_star(0, 0, 19, 19, chemin, map_build0, 20);
 
 
 
-    struct list_vect* a = chemin;
-    while(chemin->next != NULL){
-        struct list_vect* c = chemin->next;
+    struct list_vect* a = path;
+    while(a->next != NULL){
+        struct list_vect* c = a->next;
         int x_vect = c->x;
         int y_vect = c->y;
         map_build0[x_vect * 20 + y_vect] = 4;
-        chemin = chemin->next;
+        a = a->next;
     }
     free_list_vect(a);
     printf("lets goo ??\n\n");
@@ -148,18 +147,19 @@ int main(){
     printf("\n\n");
 
 
-    if(A_star(0, 0, 19, 19, chemin2, map_build1, 20))
-        printf("A* succeed\n");
+    struct list_vect* path2 = A_star(0, 0, 19, 19, chemin2, map_build1, 20);
 
-    struct list_vect* a2 = chemin2;
-    while(chemin2->next != NULL){
-        struct list_vect* c = chemin2;
+    struct list_vect* a2 = path2;
+    while(a2->next != NULL){
+        struct list_vect* c = a2;
         int x_vect = c->x_father;
         int y_vect = c->y_father;
         map_build1[x_vect * 20 + y_vect] = 4;
-        chemin2 = chemin2->next;
+        a2 = a2->next;
     }
     free_list_vect(a2);
+
+
     printf("lets goo 2\n");
 
 
