@@ -10,7 +10,7 @@
         margin: 0;
         padding: 0;
         font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        
+
     }
     div {
         width: 600px;
@@ -30,14 +30,107 @@
             width: auto;
         }
     }
-    </style>    
+    </style>
 </head>
 
 <body>
     <div>
         <h1>Avancement</h1>
         <a>
+            <h2>Début du projet</h2>
+            <p>30/01/2023</p>
+            <p>RG2A </p>
 
+            <h2>Soutenance 1:</h2>
+                <p>15/02/2023</p>
+                <p>Lors de la première soutenance, nous avons implémenté
+                l'algorithme de Boids, le pathfinding, un paint et une 
+                interface graphique.</p>
+
+                <h3>L'implémentation de l'algorithme de Boids</h3>
+                    <p>Comment les boids sont-ils repr ́esent ́es dans notre 
+                    implémentation ?</p>
+                    <p>Il n’existe pas de meilleure approche pour représenter un 
+                    boid, mais dans notre cas, nous avons utilisé des triangles 
+                    isocèles. Cela a été fait non seulement pour des raisons 
+                    esthétiques mais aussi pour rendre l’algorithme plus simple 
+                    à mettre en œuvre et à comprendre.</p>
+
+                    <p>Pourquoi un triangle ?</p>
+                    <p>Nous pouvons mettre en œuvre le comportement souhaité 
+                    en déterminant si un autre point se trouve sur le côté 
+                    gauche ou droit de notre boid en utilisant les deux points 
+                    qui constituent la base du triangle. L’autre point de notre 
+                    triangle d ́efinira la largeur du champ de vision du boid, 
+                    et plus le champ de vision est large, plus la hauteur de 
+                    notre boid doit être grande.</p>
+
+                    <p>Quels sont les principaux comportements des boids ?</p>
+                    <p>Il y a trois règles :<br>
+                    L’alignement : pour rester regroupés les boids essaient de 
+                    se suivre sur le même chemin.<br>
+                    La séparation : les boids évitent autant que possible de se 
+                    coller l’un à l’autre.<br>
+                    La cohésion : les boids ont tendance à se regrouper entre 
+                    eux.</p>
+                    <center><img src="Images/simu_boid.png" alt="simu_boid" 
+                        width="85%" height="35%"></center>
+                    <br><br>
+                <h3>Implémentation Path finding</h3>
+                    <p>Pour l’implementation de l’algorithme de pathfinding 
+                    nous avons d’abord choisis d’implementer celui de A* qui 
+                    correspond au mieux a nos demande pour un algorithme de 
+                    pathfinding le plus general possible. En effet celui-ci 
+                    recherche le chemins le plus cours entre un point A et un 
+                    point B en considerant des obstacles. Pour ce faire a 
+                    cette premiere soutenance l’implementation de cette 
+                    algortihme et faite sur vecteur de int avec comme valeur 
+                    possible 0 pour un emplacement libre et 1 pour un 
+                    emplacement ocuppee. L’algorithme ce base sur une structure 
+                    fifo avec ordre de prioritee bas ́ee sur une valeur 
+                    heuristic. La valeur heuristice se calcule pour chaque 
+                    noeud u par heuristic = cout + distance(u,destination), le 
+                    cout correspond au deplacement total depuis le point de 
+                    depart.</p>
+                    <p>Ici le point de départ (0) et le point d'arrivé (#) ainsi
+                     les obstacles (-), les positions possible( | ) et le chemin 
+                     trouvé (X).</p>
+                    <center><img src="Images/map1.png" alt="map1"·
+                        width="45%" height="30%">
+                    <img src="Images/map2.png" alt="map2"·
+                        width="45%" height="30%"></center>
+                    <p>Ici l'algorithme renvoie tous les chemins dont il est 
+                    passé, donc y compris le chemin le plus court.</p>
+                <h3>Représentation graphique</h3>
+                    <p>Paint est la première version de l’implémentation des 
+                    obstacles. Notre Paint fonctionne sur le même principe que 
+                    le vrai Paint, dessiner sur un plan. A la diff ́erence que 
+                    notre version dessine des rectangles noir en guise 
+                    d’obstacles sauf sur la cible rouge positionnée de façon
+                    aléatoire lorsque l’on presse une touche du clavier.<br>
+                    Le Paint s’activera lorsque le checkbutton obstacle(de 
+                    l’interface graphique) est activé. Lorsque le click gauche 
+                    est pressé, et que le curseur de la souris n’est pas en 
+                    collision avec la cible rouge, un rectangle noir de 
+                    dimension 10x10 est dessiner sur l’arène (en guise 
+                    d’obstacle). Le click droit à la même fonctionnalité que le 
+                    click gauche mais celui-ci efface seulement les obstacles.</p>
+                    <center><img src="Images/paintv1.png" alt="paintv1"
+                            width="70%" height="30%"></center>
+                <h3>Interface graphique</h3>
+                    <p>L’interface graphique est composé de 3 parties :<br>
+                    - Les paramètres généraux (main set up)<br>
+                    - Les paramètres de l’équipe 1 (team 1)<br>
+                    - Les paramètres de l’équipe 2 (team 2)<br>
+                    <br>
+                    <center><img src="Images/interfacev1.png" alt="interfacev1"·
+                        width="60%" height="50%"></center>
+                    </p>
+            <br><br><br><br>
+            <!--
+            <h2>Soutenance 2</h2>
+                <p>03/04/2023</p>
+            -->
         </a>
     </div>
 </body></html>
