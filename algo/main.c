@@ -132,12 +132,8 @@ int main(){
         a = a->next;
     }
     free_list_vect(a);
-    printf("lets goo ??\n\n");
     print_map(map_build0);
 
-
-
- 
     struct list_vect* chemin2 = malloc(sizeof(struct list_vect));
     chemin2->x = -1;
     chemin2->y = -1;
@@ -145,7 +141,6 @@ int main(){
     printf("Second map =\n");
     print_map(map_build1);
     printf("\n\n");
-
 
     struct list_vect* path2 = A_star(0, 0, 19, 19, chemin2, map_build1, 20);
 
@@ -160,11 +155,8 @@ int main(){
     free_list_vect(a2);
 
 
-    printf("lets goo 2\n");
-
-
     print_map(map_build1);
-       
+
     return 1;
 }
 
