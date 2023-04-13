@@ -20,7 +20,7 @@
 //int DRAW = 0;
 //int ERASE = 255;
 
-void drawrect(SDL_Renderer* renderer, int color,
+int drawrect(SDL_Renderer* renderer, int color,
         int mouse_x, int mouse_y, int radius, SDL_Rect* target)
 {
     // Sets the color for drawing operations to black.
@@ -38,10 +38,13 @@ void drawrect(SDL_Renderer* renderer, int color,
     if (!SDL_HasIntersection(&rect, target))
     {
         SDL_RenderFillRect(renderer, &rect);
+    	SDL_RenderPresent(renderer);
+    	return 1;
     }
 
     // Updates the display.
     SDL_RenderPresent(renderer);
+    return 0;
 }
 
 void drawtarget(SDL_Renderer* renderer, SDL_Rect* target, const int INIT_WIDTH,

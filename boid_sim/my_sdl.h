@@ -14,15 +14,6 @@
 #define Draw_Polygon SDL_RenderDrawLines
 #define MOD(x,y) sqrt(x*x + y*y)
 
-/*
-typedef struct polygon
-{
-	size_t size;
-	SDL_Point points;
-} polygon;
-
-void Draw_Polygon(SDL_Renderer *renderer, polygon poly);
-*/
 
 typedef struct Boid
 {
@@ -31,7 +22,10 @@ typedef struct Boid
 	SDL_Point step; //direction
 	int vel; //velocity
 	int acc; //acceleration
-	int oth;
+	int oth; //angle
+	int r;
+	int g;
+	int b;
 } Boid;
 
 int randint(int min, int max);
@@ -55,8 +49,8 @@ void wrap_thr_edges(Boid *boids, size_t n);
 void init_boids_rot(Boid *boid, size_t n);
 void init_boid(Boid *boid);
 void init_boids(Boid *boid, size_t n);
-void draw_boid(SDL_Renderer *renderer, Boid *boid);
-void draw_boids(SDL_Renderer *renderer, Boid *boid, size_t n);
+void draw_boid(SDL_Renderer *renderer, Boid *boid, int draw_b);
+void draw_boids(SDL_Renderer *renderer, Boid *boid, size_t n, int draw_b);
 void SDL_ExitWithError(const char *message);
 
 /////////
@@ -67,7 +61,7 @@ int new_th(int x, int a);
 void set_dists(Boid *boid, Boid *boids, size_t *dists, size_t n);
 size_t dist(SDL_Point p1, SDL_Point p2);
 int detect_point(Boid *boid, SDL_Point point);
-void set_dists(Boid *boid, Boid *boids, size_t *dists, size_t n);
+//void set_dists(Boid *boid, Boid *boids, size_t *dists, size_t n);
 
 /////////
 void set_coef_align(size_t coef);
