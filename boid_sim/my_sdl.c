@@ -535,7 +535,6 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
 
     // Rect of the target
     SDL_Rect target = {0, 0, 20, 20};
@@ -556,7 +555,6 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
     draw_obst(grid, target.x, target.y, target.w, 2);
 
     init_boids(boids, NB_B);
-    init_boids_rot(boids, NB_B);
     SDL_Event event;
 
     while(0 < running)
