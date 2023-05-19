@@ -130,6 +130,51 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
 }
 
 
+// sans cible pareille que en haut.
+int A_2(struct pqueue* openList, struct pqueue* closedList,
+        struct list_vect* chemin, int* map){
+    struct pqueue* u = get_first(openList);
+
+
+    if(map[u->x *cols +u->y]  == 2){
+        add_list_vect(chemin, u->x, u->y, u->x_father, u->y_father);
+        return 1;
+    }
+
+    //iteration sur voisins de u
+    for(int dr = -1; dr <=1; dr++){
+        for(int dc = -1; dc <= 1; dc++){
+            if(dr == 0 && dc == 0)
+                continue;
+
+            int u_x = u->x + dr;
+            int u_y = u->y + dc;
+
+            if(u_x >= 0 && u_x < cols && u_y >= 0 && u_y < raw){
+
+                if(map[u_x*cols +u_y] == 0 || map[u_x*cols + u_y] == 2){
+                    if(is_in_pqueue(u_x, u_y, u->cout, closedList, openList) == 0){
+                        add(openList, u_x, u_y, 0, (u->cout + 1), u->x, u->y);
+                    }
+                }
+            }
+        }
+    }
+
+
+    add_pqueue(closedList, u);
+    int x = A_2(openList, closedList, chemin, map);
+    if(x == 1){
+
+        add_list_vect(chemin, u->x, u->y, u->x_father, u->y_father);
+        return 1;
+    }
+
+    return 0;
+}
+
+
+
     
 
 struct list_vect* found_in(struct list_vect* path,int  x,int  y){
@@ -144,13 +189,13 @@ struct list_vect* found_in(struct list_vect* path,int  x,int  y){
 
 
 
-struct list_vect* pathcleaning(struct list_vect* chemin, int x_end, int y_end){
+struct list_vect* pathcleaning(struct list_vect* chemin){
     int X_father = chemin->next->x_father;
     int Y_father = chemin->next->y_father;
 
 
     struct list_vect* final_path = malloc(sizeof(struct list_vect));
-    add_list_vect(final_path, x_end, y_end, X_father, Y_father);
+    add_list_vect(final_path, chemin->next->x, chemin->next->y, X_father, Y_father);
 
     while(X_father != -1 && Y_father != -1){
         struct list_vect* f = found_in(chemin, X_father, Y_father);
@@ -207,17 +252,28 @@ struct list_vect* A_star(int x_begin, int y_begin, int x_end, int y_end,
     struct pqueue* openList = create();
 
     add(openList, x_begin, y_begin, 0, 0, -1, -1);
-    int rslt = A(openList, closedList, x_end, y_end, chemin, map);
+
+    int rslt;
+    if(x_end == -1 || y_end == -1){
+        rslt = A_2(openList, closedList, chemin, map);
+    }
+    else{
+        rslt = A(openList, closedList, x_end, y_end, chemin, map);
+    }
+
     if(rslt != 1){
         errx(1,"error while founding the objective");
     }
 
-    struct list_vect* final_path = pathcleaning(chemin, x_end, y_end);
+
+    struct list_vect* final_path = pathcleaning(chemin);
 
     struct list_vect* f = final_path;
 
-    for(f; f != NULL && depth != -1; f = f->next)
-        depth -= 1;
+    while(f->next != NULL && depth >= 0){
+        f = f->next;
+        depth -=1;
+    }
     f->next = NULL;
 
     suppr_pqueue(closedList);

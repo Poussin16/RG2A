@@ -1,0 +1,32 @@
+/!\ include a mettre :  "queue.h"
+                        "A_star.h"
+
+/!\
+
+pour call la fonction : 
+
+    struct list_vect* "name" = A_star(x_begin, y_begin, x_end, y_end, depth,
+            map, cols, raws);
+
+
+
+return :  une list chainee avec les coordonne
+
+
+parametre de A_star fonction : 
+
+//          x_begin, y_begin : start
+//          x_end, y_end : destination ( -1 a chacun pour aucune destination )
+//
+//          depth : profondeur que l'on veut atteindre.
+//          /!\ si depth = -1 alors aucun chemin ne sera trouve
+//              pour renvoyer le chemin entier mettre un grand
+//              int (ex : depth = 99999)
+//          /!\
+//
+//          map :  map 
+//          cols_2 : columns number
+//          raw_2 : raws number
+
+
+
