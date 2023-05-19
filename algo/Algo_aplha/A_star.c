@@ -262,7 +262,7 @@ struct list_vect* A_star(int x_begin, int y_begin, int x_end, int y_end,
     }
 
     if(rslt != 1){
-        errx(1,"error while founding the objective");
+        return NULL;//errx(1,"error while founding the objective");
     }
 
 
