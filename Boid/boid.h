@@ -1,12 +1,13 @@
-#ifndef MY_SDL_H
-#define MY_SDL_H
+#ifndef BOID_H
+#define BOID_H
 
 #include<err.h>
 #include<stdlib.h>
 #include<stdio.h>
 #include<math.h>
 #include<SDL2/SDL.h>
-#include"mycomplex.h"
+#include "../algo/Algo_alpha/A_star.h"
+#include "../algo/Algo_alpha/queue.h"
 
 #include <time.h>
 #include <pthread.h>
@@ -17,15 +18,16 @@
 
 typedef struct Boid
 {
-	SDL_Point tr[4]; //triangle
-	SDL_Point ctr; //center
-	SDL_Point step; //direction
-	int vel; //velocity
-	int acc; //acceleration
-	int oth; //angle
-	int r;
-	int g;
-	int b;
+    SDL_Point tr[4]; //triangle
+    SDL_Point ctr; //center
+    SDL_Point step; //direction
+    int vel; //velocity
+    int acc; //acceleration
+    int oth; //angle
+    struct list_vect* pathf;
+    int r;
+    int g;
+    int b;
 } Boid;
 
 int randint(int min, int max);
@@ -36,7 +38,7 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height);
 void set_triangle(Boid *boid);
 SDL_Point rotate_point(SDL_Point point, SDL_Point center, double deg_angle);
 void rotate_boid(Boid *boid, double th);
-void move_boid(Boid *boid);
+//void move_boid(Boid *boid);
 void move_boids(Boid *boid, size_t n);
 void refresh_boid_rot(Boid *boid);
 void refresh_boids_rot(Boid *boids, size_t n);
@@ -70,6 +72,6 @@ void set_coef_coh(size_t coef);
 
 /////////
 void set_active_obstacle(size_t set);
-void set_active_pathfinding(size_t set);
+void set_active_algo(size_t set);
 
 #endif

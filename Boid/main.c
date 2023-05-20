@@ -3,7 +3,7 @@
 #include<string.h>
 #include<math.h>
 #include"mycomplex.h"
-#include"my_sdl.h"
+#include"boid.h"
 #include<SDL2/SDL.h>
 
 #define WINDOW_WIDTH 1200

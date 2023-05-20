@@ -91,8 +91,7 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
         struct list_vect* chemin, int* map){
     struct pqueue* u = get_first(openList);
 
-
-    if((u->x == x_end && u->y == y_end)){
+    if(x_end == u->x && u->y == y_end){
         add_list_vect(chemin, u->x, u->y, u->x_father, u->y_father);
         return 1;
     }
@@ -108,7 +107,7 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
 
             if(u_x >= 0 && u_x < cols && u_y >= 0 && u_y < raw){
 
-                if(map[u_x*cols +u_y] == 0){
+                if(map[u_y*cols +u_x] != 1){
                     if(is_in_pqueue(u_x, u_y, u->cout, closedList, openList) == 0){
                         int heur = distance(u_x, u_y, x_end, y_end) + u->cout + 2;
                         add(openList, u_x, u_y, heur, (u->cout + 1), u->x, u->y);
@@ -136,7 +135,7 @@ int A_2(struct pqueue* openList, struct pqueue* closedList,
     struct pqueue* u = get_first(openList);
 
 
-    if(map[u->x *cols +u->y]  == 2){
+    if(map[u->y *cols +u->x]  == 2){
         add_list_vect(chemin, u->x, u->y, u->x_father, u->y_father);
         return 1;
     }
@@ -152,7 +151,7 @@ int A_2(struct pqueue* openList, struct pqueue* closedList,
 
             if(u_x >= 0 && u_x < cols && u_y >= 0 && u_y < raw){
 
-                if(map[u_x*cols +u_y] == 0 || map[u_x*cols + u_y] == 2){
+                if(map[u_y*cols +u_x] == 0 || map[u_y*cols + u_x] == 2){
                     if(is_in_pqueue(u_x, u_y, u->cout, closedList, openList) == 0){
                         add(openList, u_x, u_y, 0, (u->cout + 1), u->x, u->y);
                     }

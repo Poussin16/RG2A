@@ -1,8 +1,8 @@
 #include <err.h>
 #include <pthread.h>
 #include <gtk/gtk.h>
-#include "../boid_sim/main.h"
-#include "../boid_sim/my_sdl.h"
+#include "../Boid/main.h"
+#include "../Boid/boid.h"
 
 // -----------THREAD---------------
 pthread_t thr;
@@ -134,8 +134,16 @@ void get_value_scale(GtkScale* scale, int* c)
     }
 }
 
+
+void set_path(GtkCheckButton* path)
+{
+    int status_algo = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(path)) == TRUE) ? 3 : 2;
+    set_active_algo(status_algo);
+    //g_print("status_algo: %i\n", status_algo);
+}
 void set_algo(GtkCheckButton* algo, GtkCheckButton* obstacle)
 {
+    int status_algo = 0;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(algo)) == TRUE)
     {
         if (algo == algo1_t1)
@@ -147,6 +155,8 @@ void set_algo(GtkCheckButton* algo, GtkCheckButton* obstacle)
             gtk_range_set_value(GTK_RANGE(scale_c1), set_algo1[0]);
             gtk_range_set_value(GTK_RANGE(scale_s1), set_algo1[1]);
             gtk_range_set_value(GTK_RANGE(scale_a1), set_algo1[2]);
+
+            status_algo = 1;
         }
         else if (algo == algo1_t2)
         {
@@ -157,6 +167,8 @@ void set_algo(GtkCheckButton* algo, GtkCheckButton* obstacle)
             gtk_range_set_value(GTK_RANGE(scale_c2), set_algo1[0]);
             gtk_range_set_value(GTK_RANGE(scale_s2), set_algo1[1]);
             gtk_range_set_value(GTK_RANGE(scale_a2), set_algo1[2]);
+
+            //status_algo = 1;
         }
         else if (algo == algo2_t1)
         {
@@ -167,6 +179,8 @@ void set_algo(GtkCheckButton* algo, GtkCheckButton* obstacle)
             gtk_range_set_value(GTK_RANGE(scale_c1), set_algo2[0]);
             gtk_range_set_value(GTK_RANGE(scale_s1), set_algo2[1]);
             gtk_range_set_value(GTK_RANGE(scale_a1), set_algo2[2]);
+
+            status_algo = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(path_t1)) == TRUE) ? 3 : 2;
         }
         else if (algo == algo2_t2)
         {
@@ -177,6 +191,8 @@ void set_algo(GtkCheckButton* algo, GtkCheckButton* obstacle)
             gtk_range_set_value(GTK_RANGE(scale_c2), set_algo2[0]);
             gtk_range_set_value(GTK_RANGE(scale_s2), set_algo2[1]);
             gtk_range_set_value(GTK_RANGE(scale_a2), set_algo2[2]);
+
+            //status_algo = 2
         }
     }
     else
@@ -191,7 +207,11 @@ void set_algo(GtkCheckButton* algo, GtkCheckButton* obstacle)
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(path_t2), FALSE);
             gtk_widget_set_sensitive(GTK_WIDGET(path_t2), FALSE);
         }
+        status_algo = 0;
     }
+
+    //g_print("status_algo: %i\n", status_algo);
+    set_active_algo(status_algo);
 }
 
 void delete_team(GtkButton* delete)
@@ -304,6 +324,7 @@ int main ()
     g_signal_connect(delete_t1, "clicked", G_CALLBACK(delete_team), NULL);
     g_signal_connect(algo1_t1, "clicked", G_CALLBACK(set_algo), obstacle);
     g_signal_connect(algo2_t1, "clicked", G_CALLBACK(set_algo), obstacle);
+    g_signal_connect(path_t1, "clicked", G_CALLBACK(set_path), NULL);
     g_signal_connect(scale_c1, "value_changed", G_CALLBACK(get_value_scale), &team1);
     g_signal_connect(scale_s1, "value_changed", G_CALLBACK(get_value_scale), &team1);
     g_signal_connect(scale_a1, "value_changed", G_CALLBACK(get_value_scale), &team1);
@@ -312,6 +333,7 @@ int main ()
     g_signal_connect(delete_t2, "clicked", G_CALLBACK(delete_team), NULL);
     g_signal_connect(algo1_t2, "clicked", G_CALLBACK(set_algo), obstacle);
     g_signal_connect(algo2_t2, "clicked", G_CALLBACK(set_algo), obstacle);
+    g_signal_connect(path_t2, "clicked", G_CALLBACK(set_path), NULL);
     g_signal_connect(scale_c2, "value_changed", G_CALLBACK(get_value_scale), &team2);
     g_signal_connect(scale_s2, "value_changed", G_CALLBACK(get_value_scale), &team2);
     g_signal_connect(scale_a2, "value_changed", G_CALLBACK(get_value_scale), &team2);
