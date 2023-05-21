@@ -30,6 +30,9 @@ size_t perception_coh = 50;
 size_t speed_boid = 4;
 size_t radius_percep = 25;
 
+int x_target = 0;
+int y_target = 0;
+
 // PAINT
 int PAINT = 0;
 // Boolean paint
@@ -217,6 +220,13 @@ int detect_obst(Boid *B, SDL_Point boid, int *grid, int percep, int *xdist, int 
                         B->b = 0;
                         VALID_BOID += 1;
                     }
+                    if (algo == 1 && B->r != 255 && B->pathf == NULL &&
+                            grid[y * WINDOW_WIDTH + x] == -2){
+                        int x = x_target;
+                        int y = y_target;
+                        B->g = 255;
+                        pathfinding_behavior(B, grid, &x, &y, 2);
+                    }
                 }
             }
         }
@@ -249,6 +259,11 @@ int dist_obst(Boid *boid, SDL_Point obst)
 // 0 -> pas d'obstacle detecte
 int obst_manag(Boid *boid, int *grid, int perception)
 {
+    if (algo == 1 && boid-> r == 255){
+        grid[boid->ctr.y * WINDOW_WIDTH + boid->ctr.x] = -2;
+        //printf("x:%i\n", boid->ctr.x);
+    }
+
     int x = 0;
     int y = 0;
     int dist = detect_obst(boid, boid->tr[0], grid, perception, &x, &y);
@@ -706,6 +721,8 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
 
     while(0 < running)
     {
+        x_target = target.x;
+        y_target = target.y;
         SDL_WaitEventTimeout(&event, 0);
         switch (event.type)
         {
@@ -788,8 +805,7 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
             wrap_thr_edges(boids, NB_B);
 
             int delay_algo2 = 0;
-            if (algo == 0 || algo == 1 ||
-                   (algo == 3 && x_pos == -1 && y_pos == -1)){
+            if (algo == 0 || (algo == 3 && x_pos == -1 && y_pos == -1)){
                 x_pos = -1;
                 y_pos = -1;
                 if (DELAY >= 10)
@@ -797,6 +813,22 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
 
                 wiggle_boids(boids, NB_B, -3, +3);
                 boids_behavior(boids, grid, dists);
+            }
+            else if (algo == 1){
+                if (DELAY >= 10)
+                    SDL_Delay(DELAY);
+
+                for (size_t i = 0; i < NB_B; i++){
+                    if (boids[i].r == 255 || boids[i].pathf == NULL){
+                        wiggle_boid(&boids[i], -3, +3);
+                        boid_behavior(boids, i, grid, dists);
+                    }
+                    else{
+                        int x = target.x;
+                        int y = target.y;
+                        pathfinding_behavior(&boids[i], grid, &x, &y, 2);
+                    }
+                }
             }
             else if (algo == 2){
                 for (size_t i = 0; i < NB_B; i++){
@@ -823,13 +855,6 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
                     else{
                         boids[i].pathf = NULL;
                         delay_algo2++;
-                        /*if (DELAY >= 10){
-                            if (DELAY / NB_B == 0)
-                                SDL_Delay(0);
-                            else
-                                SDL_Delay(DELAY/NB_B);
-                            //printf("DELAY  %i  DELAY\n", DELAY / NB_B);
-                        }*/
                         wiggle_boid(&boids[i], -3, +3);
                         boid_behavior(boids, i, grid, dists);
                     }
@@ -837,13 +862,6 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
                 }
 
             }
-                /*for (size_t i = 0; i < grid_pattern; i++){
-                    for (size_t j = 0; j < grid_pattern; j++){
-                        printf("%i--", pathx[i * grid_pattern + j]);
-                    }
-                    printf("\n");
-                }
-                printf("\n");*/
             else if (algo == 3 && x_pos != -1 && y_pos != -1){
                 for (size_t i = 0; i < NB_B; i++){
                     set_dists(&boids[i], boids, dists, NB_B);
@@ -858,7 +876,7 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
             draw_boids(renderer, boids, NB_B, 1);
             SDL_RenderPresent(renderer);
         }
-        else if (algo == 0 || algo == 1){ //algo !=algo != 3 || x_pos == -1 || y_pos == -1){
+        else if (algo == 0 || algo == 1){
             for (size_t i = 0; i < NB_B; i++){
                 boids[i].pathf = NULL;
             }

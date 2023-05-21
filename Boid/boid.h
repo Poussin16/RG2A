@@ -56,6 +56,8 @@ void draw_boid(SDL_Renderer *renderer, Boid *boid, int draw_b);
 void draw_boids(SDL_Renderer *renderer, Boid *boid, size_t n, int draw_b);
 void SDL_ExitWithError(const char *message);
 
+void pathfinding_behavior(Boid* boid, int* grid, int* x_pos, int* y_pos, int status);
+
 /////////
 void align(Boid *boid, Boid *boids, size_t id, size_t *dists, size_t n);
 void separate(Boid *boid, Boid *boids, size_t id, size_t *dists, size_t n);
