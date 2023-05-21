@@ -41,7 +41,7 @@
             <p>30/01/2023</p>
             <p>RG2A </p>
 
-            <h2>Soutenance 1:</h2>
+            <h2>Soutenance 1</h2>
                 <p>15/02/2023</p>
                 <p>Lors de la première soutenance, nous avons implémenté
                 l'algorithme de Boids, le pathfinding, un paint et une 
@@ -61,7 +61,7 @@
                     en déterminant si un autre point se trouve sur le côté 
                     gauche ou droit de notre boid en utilisant les deux points 
                     qui constituent la base du triangle. L’autre point de notre 
-                    triangle d ́efinira la largeur du champ de vision du boid, 
+                    triangle définira la largeur du champ de vision du boid, 
                     et plus le champ de vision est large, plus la hauteur de 
                     notre boid doit être grande.</p>
 
@@ -73,7 +73,7 @@
                     coller l’un à l’autre.<br>
                     La cohésion : les boids ont tendance à se regrouper entre 
                     eux.</p>
-                    <center><img src="Images/simu_boid.png" alt="simu_boid" 
+                    <center><img src="../Images/simu_boid.png" alt="simu_boid" 
                         width="85%" height="35%"></center>
                     <br><br>
                 <h3>Implémentation Path finding</h3>
@@ -95,16 +95,16 @@
                     <p>Ici le point de départ (0) et le point d'arrivé (#) ainsi
                      les obstacles (-), les positions possible( | ) et le chemin 
                      trouvé (X).</p>
-                    <center><img src="Images/map1.png" alt="map1"·
+                    <center><img src="../Images/map1.png" alt="map1"·
                         width="45%" height="30%">
-                    <img src="Images/map2.png" alt="map2"·
+                    <img src="../Images/map2.png" alt="map2"·
                         width="45%" height="30%"></center>
                     <p>Ici l'algorithme renvoie tous les chemins dont il est 
                     passé, donc y compris le chemin le plus court.</p>
                 <h3>Représentation graphique</h3>
                     <p>Paint est la première version de l’implémentation des 
                     obstacles. Notre Paint fonctionne sur le même principe que 
-                    le vrai Paint, dessiner sur un plan. A la diff ́erence que 
+                    le vrai Paint, dessiner sur un plan. A la différence que 
                     notre version dessine des rectangles noir en guise 
                     d’obstacles sauf sur la cible rouge positionnée de façon
                     aléatoire lorsque l’on presse une touche du clavier.<br>
@@ -115,7 +115,7 @@
                     dimension 10x10 est dessiner sur l’arène (en guise 
                     d’obstacle). Le click droit à la même fonctionnalité que le 
                     click gauche mais celui-ci efface seulement les obstacles.</p>
-                    <center><img src="Images/paintv1.png" alt="paintv1"
+                    <center><img src="../Images/paintv1.png" alt="paintv1"
                             width="70%" height="30%"></center>
                 <h3>Interface graphique</h3>
                     <p>L’interface graphique est composé de 3 parties :<br>
@@ -123,14 +123,93 @@
                     - Les paramètres de l’équipe 1 (team 1)<br>
                     - Les paramètres de l’équipe 2 (team 2)<br>
                     <br>
-                    <center><img src="Images/interfacev1.png" alt="interfacev1"·
+                    <center><img src="../Images/interfacev1.png" alt="interfacev1"·
                         width="60%" height="50%"></center>
                     </p>
-            <br><br><br><br>
-            <!--
+    </div>
+    <div>
             <h2>Soutenance 2</h2>
                 <p>03/04/2023</p>
-            -->
+                <p>Lors de la deuxième soutenance, nous avons implémenté
+                la représentation des obstacles, amélioré le pathfinding et lié
+                l'interface graphique et la simulation boid.</p>
+
+                <h3>Implémentation de la représentation des obstacles</h3>
+                <p>Maintenant lorsque l'utilisateur représente des obstacles
+                dans l'arène les boids l'évitent. Les boids étaient seulement
+                soumis à l'algorithme de boid, mais maintenant qu'il y a des
+                obstacles les boids doivent réagir autrement. Lorsqu'un boid est
+                proche d'un obstacle il ne prend plus en compte l'algorithme de
+                boid et ses voisins, pour éviter l'obstacle en priorité.<br>
+                Lorsque le boid est proche d'un obstacle, il va plus ou moins
+                faire une rotation, vers la droite ou la gauche, pour esquiver
+                l'obstacle.</p>
+
+                <h3>Implémentation du pathfinding</h3>
+                <p>Pour l'implementation de l'algorithme de pathfinding nous
+                avons d'abord choisis d'implementer celui de A* qui correspond
+                au mieux a nos demande pour un algorithme de pathfinding le plus
+                general possible.<br>
+                En effet celui-ci recherche le chemins le plus cours entre un
+                point A et un point B en considerant des obstacles.<br>
+                Pour ce faire a cette premiere soutenance  l'implementation de
+                cette algortihme et faite sur vecteur de int avec comme valeur
+                possible 0 pour un emplacement libre et 1 pour un emplacement
+                occupée.<br>
+                L'algorithme ce base sur une structure fifo avec ordre de
+                prioritée basée sur une valeur heuristic. La valeur heuristice
+                se calcule pour chaque noeud u par heuristic = cout +
+                distance(u, destination), le cout correspond au deplacement
+                total depuis le point de depart.</p>
+                <p>Lors de la soutenance 1 le problème était que l'on ne retrouvait
+                pas le chemin retour, exemple sur une carte complexe.
+                <center><img src="../Images/map2.png" alt="map2"></center></p>
+                <p>Maintenant lors de cette deuxieme soutenance j'ai resolue le
+                probleme lorsque il y'a plusieur obstacle sur le trajet. Pour ce
+                faire j'ai pensée a plusieurs solutions :<br>
+                - Premiere idée a etait d'implementer une liste de pere et de
+                distance comme djikstra sur le chemins qu'il renvoyé, cela
+                marche mais et tres couteux lors du lancement de l'algorithme et
+                donc sur une petit matrice le temps de calcul ce faisait deja
+                ressentir.<br>
+                - Deuxième idée, apres avoir implementé la remonté du pere sur
+                tous les chemins parcourus.<br>
+                <p>Voici donc une map sur l'aquelle il ne trouvais pas le chemin
+                le plus rapide :
+                <center><img src="../Images/mapsolution2.png" alt="mapS2"></center></p>
+
+                <h3>Implémentation de la console de pilotage de la
+                    simulation</h3>
+                <p>Lors de la soutenance 1, nous avons réalisé une interface
+                graphique, implémenté l'algorithme de Boid, du pathfinding et
+                du paint. Pour cette deuxième soutenance nous avons lié
+                l'algorithme de Boid et le paint à l'interface graphique.</p>
+                <p>L'interface graphique / console de pilotage : permet de
+                paramétrer la simulation.
+                <ol>
+                    <li>Le bouton Start/Pause : permet de lancer la simulation
+                        ou de la mettre en pause.</li>
+                    <li>Le bouton Stop : permet d'arrêter la simulation.</li>
+                    <li>Le checkbutton Obstacle : permet à l'utilisateur de
+                        dessiner des obstacles dans l'arène</li>
+                    <li>Le cohésion/séparation/alignement slider : permettent de
+                        modifier les différents coefficients de Boids.</li>
+                    <li>e checkbutton algo1/algo2 : n'active pas un algorithme
+                        en particulier, il établit des coefficients à
+                        l'algorihme de Boids.</li>
+                </ol></p>
+                <center><img src="../Images/interfacev1.png" alt="interfacev1"
+                    width="60%" height="50%"></center></p>
+                <center>
+                    <img src="../Images/simulation-v2-1.png" alt="simv2-1"
+                              width="60%" height="25%">
+                    <img src="../Images/simulation-v2-2.png" alt="simv2-2"
+                    width="60%" height="25%">
+                </center>
+    </div>
+    <div>
+            <h2>Soutenance finale</h2>
+            <p>23/05/2023</p>
         </a>
     </div>
 </body></html>

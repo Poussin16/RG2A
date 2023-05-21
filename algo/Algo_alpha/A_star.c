@@ -26,21 +26,6 @@ int distance(int x1, int y1, int x2, int y2){
 }
 
 
-
-
-/*
-int distance(int x1, int y1, int x2, int y2){
-    int pst = (x2 - x1)*(x2 - x1);
-    int pst2 = (y2 - y1)*(y2 - y1);
-    float t = ((float)pst) + ((float)pst2);
-    int rst = (int)sqrt(t);
-    return rst;
-}
-*/
-
-
-
-
 void add_list_vect(struct list_vect* c, int x, int y, int x_f, int y_f){
     struct list_vect* p = malloc(sizeof(struct list_vect));
     p->x = x;
@@ -91,8 +76,11 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
         struct list_vect* chemin, int* map){
     struct pqueue* u = get_first(openList);
 
-    if(x_end == u->x && u->y == y_end){
+    int a = 10;
+    if(x_end-a <= u->x && u->x <= x_end+a &&
+            y_end-a <= u->y && u->y <= y_end+a){
         add_list_vect(chemin, u->x, u->y, u->x_father, u->y_father);
+        //printf("FIND\n");
         return 1;
     }
 
@@ -102,8 +90,8 @@ int A(struct pqueue* openList, struct pqueue* closedList, int x_end, int y_end,
             if(dr == 0 && dc == 0)
                 continue;
 
-            int u_x = u->x + dr;
-            int u_y = u->y + dc;
+            int u_x = u->x + dr*a;
+            int u_y = u->y + dc*a;
 
             if(u_x >= 0 && u_x < cols && u_y >= 0 && u_y < raw){
 
@@ -192,8 +180,10 @@ struct list_vect* pathcleaning(struct list_vect* chemin){
     int X_father = chemin->next->x_father;
     int Y_father = chemin->next->y_father;
 
-
     struct list_vect* final_path = malloc(sizeof(struct list_vect));
+    final_path->next = NULL;
+
+
     add_list_vect(final_path, chemin->next->x, chemin->next->y, X_father, Y_father);
 
     while(X_father != -1 && Y_father != -1){
@@ -202,8 +192,6 @@ struct list_vect* pathcleaning(struct list_vect* chemin){
         X_father = f->x_father;
         Y_father = f->y_father;
     }
-
-
 
     return final_path;
 }
@@ -264,17 +252,19 @@ struct list_vect* A_star(int x_begin, int y_begin, int x_end, int y_end,
         return NULL;//errx(1,"error while founding the objective");
     }
 
-
     struct list_vect* final_path = pathcleaning(chemin);
 
     struct list_vect* f = final_path;
 
     while(f->next != NULL && depth >= 0){
         f = f->next;
-        depth -=1;
+        depth -= 1;
     }
     f->next = NULL;
-
+    
+    /*for (struct list_vect* f = chemin; f != NULL; f = f->next){
+        printf("x:%i\n", f->x);
+    }*/
     suppr_pqueue(closedList);
     suppr_pqueue(openList);
     return final_path;

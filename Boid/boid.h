@@ -6,6 +6,7 @@
 #include<stdio.h>
 #include<math.h>
 #include<SDL2/SDL.h>
+#include "../paint/paint.h"
 #include "../algo/Algo_alpha/A_star.h"
 #include "../algo/Algo_alpha/queue.h"
 

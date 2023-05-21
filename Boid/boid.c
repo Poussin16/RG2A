@@ -1,10 +1,9 @@
 #include "boid.h"
-#include "../paint/paint.h"
 
 int WINDOW_WIDTH;
 int WINDOW_HEIGHT;
 
-#define NB_B 1
+#define NB_B 50
 #define DELAY 1000 / NB_B
 #define PI 3.141592653589793238
 
@@ -161,25 +160,6 @@ void refresh_boid_rot(Boid *boid)
     boid->tr[2].x = boid->tr[0].x - 3;
     boid->tr[2].y = boid->tr[0].y + 9;
     boid->tr[3] = boid->tr[0];
-/*
-    int oth = (boid->oth + 90 > 180) ? 
-        (boid->oth + 90 - 360)*-1 : (boid->oth + 90)*-1;
-    printf("%i\n", oth);
-
-    int x = boid->tr[0].x - boid->ctr.x;
-    int y = boid->tr[0].y - boid->ctr.y;
-
-    boid->tr[0].x += x;
-    boid->tr[0].y += y;
-    boid->tr[1].x += x;
-    boid->tr[1].y += y;
-    boid->tr[2].x += x;
-    boid->tr[2].y += y;
-    boid->tr[3] = boid->tr[0];
-
-    boid->ctr.x = (boid->tr[0].x + boid->tr[1].x + boid->tr[2].x) / 3;
-    boid->ctr.y = (boid->tr[0].y + boid->tr[1].y + boid->tr[2].y) / 3;
-*/
 
     if(boid->oth >= 180)
     {
@@ -203,6 +183,7 @@ void refresh_boids_rot(Boid *boids, size_t n)
     }
 }
 
+/////////////////////////////////////
 
 int detect_obst(Boid *B, SDL_Point boid, int *grid, int percep, int *xdist, int *ydist)
 {
@@ -231,7 +212,6 @@ int detect_obst(Boid *B, SDL_Point boid, int *grid, int percep, int *xdist, int 
                         }
                     }
                     if (B->b != 0 && grid[y * WINDOW_WIDTH + x] == 2){
-                        printf("xx:%i -- yy:%i\n", x, y);
                         B->r = 255;
                         B->g = 128;
                         B->b = 0;
@@ -463,6 +443,127 @@ void set_coef_coh(size_t coef)
     perception_coh = coef;
 }
 
+
+void boid_behavior(Boid* boids, size_t i, int* grid, size_t* dists)
+{
+    boids[i].pathf = NULL;
+    if (!obst_manag(&boids[i], grid, 2*radius_percep/3)){
+        //set_dists(&boids[i], boids, dists, NB_B);
+        separate(&boids[i], boids, i, dists, NB_B);
+        cohere(&boids[i], boids, i, dists, NB_B);
+        align(&boids[i], boids, i, dists, NB_B);
+    }
+}
+void boids_behavior(Boid* boids, int* grid, size_t* dists)
+{
+    for(size_t i = 0; i < NB_B; i++)
+    {
+        boid_behavior(boids, i, grid, dists);
+    }
+}
+
+void pathfinding_behavior(Boid* boid, int* grid, int* x_pos, int* y_pos, int status)
+{
+    if (status == 3 || (status == 2 && boid->r != 255)){
+        int depth = 1;
+        if (boid->pathf == NULL){
+            boid->pathf = A_star(boid->ctr.x,
+                    boid->ctr.y, *x_pos, *y_pos, 500, grid,
+                    WINDOW_WIDTH, WINDOW_HEIGHT);
+        }
+        else if (DELAY >= 10)
+            SDL_Delay(DELAY/NB_B);
+
+        while (boid->pathf != NULL && (
+                    abs(boid->pathf->x) > WINDOW_WIDTH ||
+                    abs(boid->pathf->y) > WINDOW_HEIGHT)){
+             boid->pathf = boid->pathf->next;
+        }
+
+        if (boid->pathf != NULL &&
+                abs(boid->pathf->x - boid->ctr.x) < 5 &&
+                abs(boid->pathf->y - boid->ctr.y) < 5 &&
+                !(abs(boid->ctr.x-(*x_pos)) < 15 && abs(boid->ctr.y-(*y_pos)) < 15)){
+            while (depth > 0 && boid->pathf->next != NULL){
+                boid->pathf = boid->pathf->next;
+                depth--;
+            }
+        }
+
+        if (boid->pathf != NULL &&
+                !(abs(boid->ctr.x-(*x_pos)) <= 15 &&
+                abs(boid->ctr.y-(*y_pos)) <= 15)){
+            //printf("%i -- %i        ", boid->ctr.x, boid->ctr.y);
+            int x_path = boid->pathf->x;
+            int y_path = boid->pathf->y;
+            int x_t = abs(boid->ctr.x-x_path);
+            int y_t = abs(boid->ctr.y-y_path);
+            int deg = (int)(acos(x_t/sqrt(x_t*x_t + y_t*y_t))*180/PI);
+            deg = (boid->ctr.y < y_path) ? 90 + deg : 90 - deg;
+            deg = (deg == 0) ? 1 : deg;
+            deg *= (boid->ctr.x < x_path) ? 1 : -1;
+            boid->oth = deg;
+        }
+        else {//(!(boids[i].pathf != NULL &&
+                //boids[i].pathf->next != NULL)){
+            //printf("NULL\n");
+            boid->pathf = NULL;
+            *x_pos = -1;
+            *y_pos = -1;
+        }
+    }
+}
+
+void search_path(Boid* boid, int* grid, int* pathx, int* pathy,
+        size_t grid_pattern, int* x, int* y)
+{
+    int distance = WINDOW_WIDTH * WINDOW_HEIGHT;
+    for (size_t i = 0; i < grid_pattern; i++){
+        for (size_t j = 0; j < grid_pattern; j++){
+            int pos = i * grid_pattern + j;
+            if (pathx[pos] != -1 && pathy[pos] != -1){
+                if (grid[pathy[pos] * WINDOW_WIDTH + pathx[pos]] != 1){
+                    int distx = abs(boid->ctr.x - pathx[pos]);
+                    int disty = abs(boid->ctr.y - pathy[pos]);
+                    int dist = (int)sqrt(distx*distx + disty*disty);
+                    if (dist < distance){
+                        *x = (int)j;
+                        *y = (int)i;
+                        distance = dist;
+                    }
+                }
+                else{
+                    pathx[pos] = -1;
+                    pathy[pos] = -1;
+                }
+            }
+        }
+    }
+    if (distance > 1000){
+        *x = -1;
+        *y = -1;
+    }
+}
+void algo_search(Boid* boid, int* grid, int* path_boids, int* pathx, int* pathy,
+        int x, int y, int grid_pattern, size_t i)
+{
+    int pos = y * grid_pattern + x;
+    x = pathx[pos];
+    y = pathy[pos];
+    //printf("x:%i -- y:%i    \n", x, y);
+
+    obst_manag(boid, grid, radius_percep);
+    pathfinding_behavior(boid, grid, &x, &y, algo);
+
+    //printf("%i -- %i\n", x, y);
+    if (x == -1){
+        pathx[pos] = -1;
+        pathy[pos] = -1;
+        path_boids[i*2] = -1;
+        path_boids[i*2 + 1] = -1;
+    }
+}
+
 /////////////////////////////////////
 
 // draw_b boolean -> 1 si ce n'est pas un recouvrement un blanc, 0 sinon
@@ -494,6 +595,24 @@ void draw_obst(int *grid, int X, int Y, int radius, int input)
                     }
                 }
             }
+        }
+    }
+}
+
+/////////////////////////////////////
+
+void init_path(int* pathx, int* pathy, size_t grid_pattern)
+{
+    pathx[0] = WINDOW_WIDTH / (grid_pattern * 2);
+    pathy[0] = WINDOW_HEIGHT / (grid_pattern * 2);
+    for (size_t i = 1; i < grid_pattern; i++){
+        pathx[i] = pathx[i-1] + WINDOW_WIDTH / grid_pattern;
+        pathy[i * grid_pattern] = pathy[(i-1) * grid_pattern] + WINDOW_HEIGHT / grid_pattern;
+    }
+    for (size_t i = 1; i < grid_pattern; i++){
+        for (size_t j = 0; j < grid_pattern; j++){
+            pathx[i * grid_pattern + j] = pathx[(i-1) * grid_pattern + j];
+            pathy[j * grid_pattern + i] = pathy[j * grid_pattern + i-1];
         }
     }
 }
@@ -556,6 +675,10 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
     SDL_Rect target = {0, 0, 20, 20};
     drawtarget(renderer, &target, WINDOW_WIDTH, WINDOW_HEIGHT);
 
+    // Initialisation de la grid obstacle (qui contient la position des
+    // obstacles) 
+    // placer des obstcales aux limites de la fenêtre
+    // et placer la target
     int* grid = malloc(sizeof(int) * WINDOW_WIDTH * WINDOW_HEIGHT);
     for (int y = 0; y < WINDOW_HEIGHT; y++){
         grid[y * WINDOW_WIDTH] = 1;
@@ -570,6 +693,22 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
     }
     draw_obst(grid, target.x+target.w/2, target.y+target.w/2, target.w/2, 2);
 
+    // Initialisation des deux listes pathx/pathy qui sont les différentes
+    // coordonnées que les boids vont devoir aller pour algo == 2
+    size_t grid_pattern = 15;
+    int* pathx = malloc(sizeof(int) * grid_pattern * grid_pattern);
+    int* pathy = malloc(sizeof(int) * grid_pattern * grid_pattern);
+    init_path(pathx, pathy, grid_pattern);
+    /*for (size_t i = 0; i < grid_pattern * grid_pattern; i++){
+        pathx[i] = -1;
+    }*/
+
+    int* path_boids = malloc(sizeof(int) * 2 * NB_B);
+    for (size_t i = 0; i < 2 * NB_B; i++){
+        path_boids[i] = -1;
+    }
+
+    // Initialisation des boids
     init_boids(boids, NB_B);
     SDL_Event event;
 
@@ -581,6 +720,9 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
         switch (event.type)
         {
             case SDL_QUIT:
+                free(path_boids);
+                free(pathx);
+                free(pathy);
                 free(grid);
                 return;
             case SDL_KEYUP:
@@ -594,7 +736,8 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
                     {
                         if (drawrect(renderer, DRAW, event.motion.x, event.motion.y,
                                     ray_paint, &target)){
-                            draw_obst(grid, event.motion.x, event.motion.y, ray_paint, 1);
+                            draw_obst(grid, event.motion.x, event.motion.y,
+                                    2*ray_paint/3, 1);
                         }
                         PAINT = 1;
                     }
@@ -602,8 +745,8 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
                     {
                         if (drawrect(renderer, ERASE, event.motion.x, event.motion.y,
                                     ray_erase, &target)){
-                            draw_obst(grid, event.motion.x,
-                                    event.motion.y, ray_erase, 0);
+                            draw_obst(grid, event.motion.x, event.motion.y,
+                                    ray_erase/2, 0);
                         }
                         PAINT = -1;
                     }
@@ -630,7 +773,7 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
                         if (drawrect(renderer, DRAW, event.motion.x,
                                     event.motion.y, ray_paint, &target)){
                             draw_obst(grid, event.motion.x,
-                                    event.motion.y, ray_paint, 1);
+                                    event.motion.y, 2*ray_paint/3, 1);
                         }
                     }
                     else if (PAINT == -1)
@@ -638,7 +781,7 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
                         if (drawrect(renderer, ERASE, event.motion.x,
                                     event.motion.y, ray_erase, &target)){
                             draw_obst(grid, event.motion.x, event.motion.y,
-                                    ray_erase, 0);
+                                    ray_erase/2, 0);
                         }
                     }
                 }
@@ -646,89 +789,88 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
             //default:
               //  break;
         }
-        //printf("x:%i -- y:%i\n", x_pos, y_pos);
         // running == 1 -> Start/Resume
         if (running == 1)
         {
             draw_boids(renderer, boids, NB_B, 0);
-            //wiggle_boids(boids, NB_B, -3, +3);
             refresh_boids_rot(boids, NB_B);
             wrap_thr_edges(boids, NB_B);
 
-            if (algo == 0 || algo == 1 || algo == 2 || 
-                    (algo == 3 && x_pos == -1 && y_pos == -1)){
+            if (algo == 0 || algo == 1 ||
+                   (algo == 3 && x_pos == -1 && y_pos == -1)){
                 x_pos = -1;
                 y_pos = -1;
                 if (DELAY >= 10)
-                    SDL_Delay(DELAY/20);
+                    SDL_Delay(DELAY);
 
                 wiggle_boids(boids, NB_B, -3, +3);
-                for(size_t i = 0; i < NB_B; i++)
-                {
-                    boids[i].pathf = NULL;
-                    if (!obst_manag(&boids[i], grid, 2*radius_percep/3)){
-                        set_dists(&boids[i], boids, dists, NB_B);
-                        separate(&boids[i], boids, i, dists, NB_B);
-                        cohere(&boids[i], boids, i, dists, NB_B);
-                        align(&boids[i], boids, i, dists, NB_B);
-                    }
-                }
+                boids_behavior(boids, grid, dists);
             }
-            else if (algo == 3 && x_pos != -1 && y_pos != -1){
-                //if (DELAY >= 10)
-                //    SDL_Delay(DELAY/20);
+            else if (algo == 2){
                 for (size_t i = 0; i < NB_B; i++){
-                    int depth = 10;
-                    if (boids[i].pathf == NULL){
-                        boids[i].pathf = A_star(boids[i].ctr.x,
-                                boids[i].ctr.y, x_pos, y_pos, 50*depth, grid,
-                                WINDOW_WIDTH, WINDOW_HEIGHT);
+                    int x = -1;
+                    int y = -1;
+                    if (path_boids[i*2] == -1 && boids[i].r != 255){
+                        search_path(&boids[i], grid, pathx, pathy, grid_pattern, &x, &y);
                     }
-                    else if (DELAY >= 10)
-                        SDL_Delay(DELAY/10*NB_B);
 
-                    if (boids[i].pathf != NULL &&
-                            abs(boids[i].pathf->x - boids[i].ctr.x) < 5 &&
-                            abs(boids[i].pathf->y - boids[i].ctr.y) < 5)
-                    {
-                        while (depth > 0 && boids[i].pathf != NULL && boids[i].pathf->next != NULL){
-                            boids[i].pathf = boids[i].pathf->next;
-                            depth--;
-                        }
+                    if (x != -1 && y != -1){
+                        path_boids[i*2] = x;
+                        path_boids[i*2 + 1] = y;
+                        algo_search(&boids[i], grid, path_boids, pathx, pathy,
+                                x, y, grid_pattern, i);
+                        set_dists(&boids[i], boids, dists, NB_B);
                     }
-                    else
-                        depth = 0;
-
-                    if (boids[i].pathf != NULL && depth <= 0){
-                        int x_path = boids[i].pathf->x;
-                        int y_path = boids[i].pathf->y;
-                        int x_t = abs(boids[i].ctr.x-x_path);
-                        int y_t = abs(boids[i].ctr.y-y_path);
-                        int deg = (int)(acos(x_t/sqrt(x_t*x_t + y_t*y_t))*180/PI);
-                        deg = (boids[i].ctr.y < y_path) ? 90 + deg : 90 - deg;
-                        deg = (deg == 0) ? 1 : deg;
-                        deg *= (boids[i].ctr.x < x_path) ? 1 : -1;
-                        //printf("deg:%i -- x:%i/%i -- y:%i/%i -- %i-%i\n", deg, boids[i].ctr.x, x_path, boids[i].ctr.y, y_path, x_pos, y_pos);
-                        boids[i].oth = deg;
+                    else if (path_boids[i*2] != -1){
+                        x = path_boids[i*2];
+                        y = path_boids[i*2 + 1];
+                        algo_search(&boids[i], grid, path_boids, pathx, pathy,
+                                x, y, grid_pattern, i);
+                        set_dists(&boids[i], boids, dists, NB_B);
                     }
                     else{
-                        //printf("NULL");
                         boids[i].pathf = NULL;
-                        x_pos = -1;
-                        y_pos = -1;
-                        /*if (abs(boids[i].ctr.x-x_pos) < 10 && abs(boids[i].ctr.y-y_pos) > 10){
-                            x_pos = -1;
-                            y_pos = -1;
-                            printf("--!");
-                        }*/
-                        printf("NULL\n");
+                        if (DELAY >= 10){
+                            if (DELAY / NB_B == 0)
+                                SDL_Delay(1);
+                            else
+                                SDL_Delay(DELAY/NB_B);
+                        }
+
+                        wiggle_boid(&boids[i], -3, +3);
+                        boid_behavior(boids, i, grid, dists);
                     }
+
+                }
+                /*for (size_t i = 0; i < grid_pattern; i++){
+                    for (size_t j = 0; j < grid_pattern; j++){
+                        printf("%i--", pathx[i * grid_pattern + j]);
+                    }
+                    printf("\n");
+                }
+                printf("\n");*/
+            }
+            else if (algo == 3 && x_pos != -1 && y_pos != -1){
+                for (size_t i = 0; i < NB_B; i++){
+                    set_dists(&boids[i], boids, dists, NB_B);
+                    obst_manag(&boids[i], grid, radius_percep);
+                    pathfinding_behavior(&boids[i], grid, &x_pos, &y_pos, algo);
                 }
             }
 
             draw_boids(renderer, boids, NB_B, 1);
             SDL_RenderPresent(renderer);
         }
+        else if (algo == 0 || algo == 1){ //algo !=algo != 3 || x_pos == -1 || y_pos == -1){
+            for (size_t i = 0; i < NB_B; i++){
+                boids[i].pathf = NULL;
+            }
+            x_pos = -1;
+            y_pos = -1;
+        }
     }
+    free(path_boids);
+    free(pathx);
+    free(pathy);
     free(grid);
 }
