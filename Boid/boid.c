@@ -483,16 +483,16 @@ void pathfinding_behavior(Boid* boid, int* grid, int* x_pos, int* y_pos, int sta
         if (boid->pathf != NULL &&
                 abs(boid->pathf->x - boid->ctr.x) < 5 &&
                 abs(boid->pathf->y - boid->ctr.y) < 5 &&
-                !(abs(boid->ctr.x-(*x_pos)) < 15 && abs(boid->ctr.y-(*y_pos)) < 15)){
-            while (depth > 0 && boid->pathf->next != NULL){
+                !(abs(boid->ctr.x-(*x_pos)) < 10 && abs(boid->ctr.y-(*y_pos)) < 10)){
+            while (depth > 0 && boid->pathf != NULL){
                 boid->pathf = boid->pathf->next;
                 depth--;
             }
         }
 
         if (boid->pathf != NULL &&
-                !(abs(boid->ctr.x-(*x_pos)) <= 15 &&
-                abs(boid->ctr.y-(*y_pos)) <= 15)){
+                !(abs(boid->ctr.x-(*x_pos)) <= 10 &&
+                abs(boid->ctr.y-(*y_pos)) <= 10)){
             //printf("%i -- %i        ", boid->ctr.x, boid->ctr.y);
             int x_path = boid->pathf->x;
             int y_path = boid->pathf->y;
@@ -714,8 +714,6 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
 
     while(0 < running)
     {
-        //x_pos = -1;
-        //y_pos = -1;
         SDL_WaitEventTimeout(&event, 0);
         switch (event.type)
         {
@@ -832,9 +830,10 @@ void main_loop(SDL_Renderer *renderer, int Window_Width, int Window_Height)
                         boids[i].pathf = NULL;
                         if (DELAY >= 10){
                             if (DELAY / NB_B == 0)
-                                SDL_Delay(1);
+                                SDL_Delay(0);
                             else
                                 SDL_Delay(DELAY/NB_B);
+                            printf("DELAY  %i  DELAY\n", DELAY / NB_B);
                         }
 
                         wiggle_boid(&boids[i], -3, +3);
