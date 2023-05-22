@@ -259,7 +259,7 @@
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="algo1_team1">
-                        <property name="label" translatable="yes">Algo 1</property>
+                        <property name="label" translatable="yes">Algo Ant</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
@@ -297,7 +297,7 @@
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="algo2_team1">
-                        <property name="label" translatable="yes">Algo 2</property>
+                        <property name="label" translatable="yes">Algo Path Finding</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
@@ -529,7 +529,7 @@
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="algo1_team2">
-                        <property name="label" translatable="yes">Algo 1</property>
+                        <property name="label" translatable="yes">Algo Ant</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
@@ -568,7 +568,7 @@
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="algo2_team2">
-                        <property name="label" translatable="yes">Algo 2</property>
+                        <property name="label" translatable="yes">Algo Path Finding</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
